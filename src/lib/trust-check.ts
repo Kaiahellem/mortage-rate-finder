@@ -11,7 +11,7 @@ import type { RateOffer } from "./types";
  */
 const MAX_REASONABLE_SPREAD_PP = 5;
 
-/** How old fetchedAt may be before a figure is flagged as outdated. */
+/** How old sourceUpdatedAt may be before a figure is flagged as outdated. */
 const STALE_THRESHOLD_HOURS = 48;
 
 export type TrustFlagType = "below_policy_rate" | "spread_too_high" | "stale_data";
@@ -55,13 +55,13 @@ export function checkOfferTrust(
     });
   }
 
-  const fetchedAtMs = Date.parse(offer.fetchedAt);
-  if (!Number.isNaN(fetchedAtMs)) {
-    const ageHours = (now.getTime() - fetchedAtMs) / (1000 * 60 * 60);
+  const sourceUpdatedAtMs = Date.parse(offer.sourceUpdatedAt);
+  if (!Number.isNaN(sourceUpdatedAtMs)) {
+    const ageHours = (now.getTime() - sourceUpdatedAtMs) / (1000 * 60 * 60);
     if (ageHours > STALE_THRESHOLD_HOURS) {
       flags.push({
         type: "stale_data",
-        message: `Tallet ble hentet ${offer.fetchedAt}, mer enn ${STALE_THRESHOLD_HOURS} timer siden. Kan være utdatert.`,
+        message: `Tallet ble hentet ${offer.sourceUpdatedAt}, mer enn ${STALE_THRESHOLD_HOURS} timer siden. Kan være utdatert.`,
       });
     }
   }

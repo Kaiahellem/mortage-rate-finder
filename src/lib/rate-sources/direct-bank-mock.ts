@@ -1,7 +1,8 @@
 import type { RateOffer, RateSource } from "../types";
 
 const MOCK_SOURCE_URL = "mock://direct-bank-source/rates";
-const MOCK_FETCHED_AT = "2026-05-01T08:00:00.000Z";
+/** Illustrative "last updated" date for the mock data, deliberately static. */
+const MOCK_SOURCE_UPDATED_AT = "2026-05-01T08:00:00.000Z";
 const REFERENCE_LOAN_AMOUNT = 3_000_000;
 const MOCK_BANK_NAME = "Fiktiv Bank AS";
 
@@ -56,6 +57,8 @@ export class DirectBankMockSource implements RateSource {
   readonly isMock = true;
 
   async fetchOffers(): Promise<RateOffer[]> {
+    const retrievedAt = new Date().toISOString();
+
     return MOCK_TIERS.map((tier, index) => ({
       id: `${this.id}-tier-${index}`,
       sourceId: this.id,
@@ -70,7 +73,8 @@ export class DirectBankMockSource implements RateSource {
       nominalRatePercent: tier.nominalRatePercent,
       effectiveRatePercent: tier.effectiveRatePercent,
       referenceLoanAmount: REFERENCE_LOAN_AMOUNT,
-      fetchedAt: MOCK_FETCHED_AT,
+      sourceUpdatedAt: MOCK_SOURCE_UPDATED_AT,
+      retrievedAt,
       sourceUrl: MOCK_SOURCE_URL,
       assumptions: [
         "Dette er mock-data, ikke en ekte henting fra en bank. Tallene er illustrative og modellert etter typisk LTV-trinnet prising (DNB/Nordea-stil), ikke reelle tilbud fra Fiktiv Bank AS eller noen annen bank.",

@@ -52,7 +52,7 @@ function buildReasoning(
   }
 
   parts.push(
-    `Kilde: ${winner.sourceName} (${winner.sourceUrl}), hentet ${winner.fetchedAt}.`,
+    `Kilde: ${winner.sourceName} (${winner.sourceUrl}). Kildens data er datert ${winner.sourceUpdatedAt}, hentet av oss ${winner.retrievedAt}.`,
   );
 
   if (winner.isMock) {

@@ -35,9 +35,12 @@ describe("RenteportalenSource", () => {
 
     expect(offers).toHaveLength(3);
     expect(offers.every((o) => o.isMock === false)).toBe(true);
-    expect(offers.every((o) => o.fetchedAt === sampleResponse.oppdatert)).toBe(
-      true,
-    );
+    expect(
+      offers.every((o) => o.sourceUpdatedAt === sampleResponse.oppdatert),
+    ).toBe(true);
+    expect(
+      offers.every((o) => !Number.isNaN(Date.parse(o.retrievedAt))),
+    ).toBe(true);
     expect(offers.every((o) => o.nominalRatePercent === undefined)).toBe(
       true,
     );

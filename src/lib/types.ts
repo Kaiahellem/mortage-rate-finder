@@ -16,8 +16,9 @@ export interface LtvTier {
 
 /**
  * A single mortgage rate offer from one source, for one LTV band.
- * Every number here must be traceable back to sourceUrl and fetchedAt,
- * since the task requires a citation and a fetch timestamp per figure.
+ * Every number here must be traceable back to sourceUrl, sourceUpdatedAt
+ * and retrievedAt, since the task requires a citation and a fetch
+ * timestamp per figure.
  */
 export interface RateOffer {
   /** Stable id for this offer within its source, e.g. "dnb-under-60". */
@@ -51,8 +52,14 @@ export interface RateOffer {
    * assumes a reference amount (fees matter more on smaller loans).
    */
   referenceLoanAmount?: number;
-  /** When this data point was fetched, as an ISO 8601 timestamp. */
-  fetchedAt: string;
+  /**
+   * Date the source itself last updated this figure (e.g. Renteportalen's
+   * "oppdatert" field), as an ISO 8601 timestamp. Not when we fetched it,
+   * see retrievedAt for that. This is what freshness checks should use.
+   */
+  sourceUpdatedAt: string;
+  /** When we actually retrieved this figure, as an ISO 8601 timestamp. */
+  retrievedAt: string;
   /** URL to cite as the source of this specific number. */
   sourceUrl: string;
   /** Explicit assumptions behind this offer's numbers, e.g. reference amount or LTV band generalisation. */

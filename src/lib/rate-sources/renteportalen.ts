@@ -40,7 +40,8 @@ export class RenteportalenSource implements RateSource {
       );
     }
     const data = (await res.json()) as RenteportalenResponse;
-    const fetchedAt = data.oppdatert;
+    const sourceUpdatedAt = data.oppdatert;
+    const retrievedAt = new Date().toISOString();
     const rates = data.billigste_effektiv_per_belaningsgrad;
 
     return LTV_TIERS.map(({ key, minLtvPercent, maxLtvPercent }) => ({
@@ -51,7 +52,8 @@ export class RenteportalenSource implements RateSource {
       bankName: "Ukjent bank (billigste tilbud i markedet for dette trinnet)",
       ltvTier: { minLtvPercent, maxLtvPercent },
       effectiveRatePercent: rates[key],
-      fetchedAt,
+      sourceUpdatedAt,
+      retrievedAt,
       sourceUrl: RENTEPORTALEN_URL,
       assumptions: [
         "Renteportalen oppgir kun billigste effektive rente i markedet per belåningsgrad-trinn, ikke hvilken bank som tilbyr den eller nominell rente.",

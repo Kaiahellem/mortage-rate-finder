@@ -14,7 +14,8 @@ function offer(overrides: Partial<RateOffer>): RateOffer {
     bankName: "Test Bank",
     ltvTier: { minLtvPercent: 0, maxLtvPercent: 60 },
     effectiveRatePercent: 5.1,
-    fetchedAt: "2026-08-17T06:00:00.000Z",
+    sourceUpdatedAt: "2026-08-17T06:00:00.000Z",
+    retrievedAt: "2026-08-17T06:01:00.000Z",
     sourceUrl: "https://example.com",
     assumptions: [],
     ...overrides,
@@ -50,7 +51,7 @@ describe("checkOfferTrust", () => {
 
   it("flags stale data older than the threshold", () => {
     const result = checkOfferTrust(
-      offer({ effectiveRatePercent: 5.1, fetchedAt: "2026-05-01T08:00:00.000Z" }),
+      offer({ effectiveRatePercent: 5.1, sourceUpdatedAt: "2026-05-01T08:00:00.000Z" }),
       policyRate,
       now,
     );
@@ -60,7 +61,7 @@ describe("checkOfferTrust", () => {
 
   it("can raise both a spread flag and a staleness flag at once", () => {
     const result = checkOfferTrust(
-      offer({ effectiveRatePercent: 12, fetchedAt: "2026-05-01T08:00:00.000Z" }),
+      offer({ effectiveRatePercent: 12, sourceUpdatedAt: "2026-05-01T08:00:00.000Z" }),
       policyRate,
       now,
     );

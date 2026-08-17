@@ -36,11 +36,19 @@ describe("DirectBankMockSource", () => {
     }
   });
 
-  it("uses a fixed, non-live fetchedAt timestamp", async () => {
+  it("uses a fixed, non-live sourceUpdatedAt, but a live retrievedAt", async () => {
+    const before = Date.now();
     const offers = await new DirectBankMockSource().fetchOffers();
-    const uniqueTimestamps = new Set(offers.map((o) => o.fetchedAt));
+    const after = Date.now();
 
-    expect(uniqueTimestamps.size).toBe(1);
-    expect(Number.isNaN(Date.parse([...uniqueTimestamps][0]))).toBe(false);
+    const uniqueSourceUpdatedAt = new Set(offers.map((o) => o.sourceUpdatedAt));
+    expect(uniqueSourceUpdatedAt.size).toBe(1);
+    expect(Number.isNaN(Date.parse([...uniqueSourceUpdatedAt][0]))).toBe(false);
+
+    const uniqueRetrievedAt = new Set(offers.map((o) => o.retrievedAt));
+    expect(uniqueRetrievedAt.size).toBe(1);
+    const retrievedAtMs = Date.parse([...uniqueRetrievedAt][0]);
+    expect(retrievedAtMs).toBeGreaterThanOrEqual(before);
+    expect(retrievedAtMs).toBeLessThanOrEqual(after);
   });
 });
