@@ -61,7 +61,7 @@ export function checkOfferTrust(
     if (ageHours > STALE_THRESHOLD_HOURS) {
       flags.push({
         type: "stale_data",
-        message: `Tallet ble hentet ${offer.sourceUpdatedAt}, mer enn ${STALE_THRESHOLD_HOURS} timer siden. Kan være utdatert.`,
+        message: `Kildens data er datert ${offer.sourceUpdatedAt}, mer enn ${STALE_THRESHOLD_HOURS} timer gammel. Kan være utdatert.`,
       });
     }
   }
