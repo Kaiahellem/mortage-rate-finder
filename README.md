@@ -59,11 +59,33 @@ Sjekken er ment som en søppelfanger for åpenbart feil tall, ikke en
 vurdering av hvor god en rente er. Se DECISIONS.md rad 11-13 for
 begrunnelsen bak grensene.
 
-## Kom i gang
+## API
 
 ```bash
 npm install
 npm run dev
+```
+
+```bash
+curl -X POST http://localhost:3000/api/best-rate \
+  -H "Content-Type: application/json" \
+  -d '{"ltvPercent": 70, "loanAmount": 3000000}'
+```
+
+Svaret inneholder `winner` (eller `null` med en forklarende `reasoning` hvis
+ingen kilde dekker den oppgitte belåningsgraden), `consideredOffers` (alle
+tilbud som ble vurdert, billigst først), `trustCheck` (styringsrente +
+eventuelle flagg) og `sourceErrors` (hvis én kilde feilet, fortsetter
+endepunktet med resten i stedet for å feile helt).
+
+Testet mot ekte, levende data: Renteportalen sitt eget "oppdatert"-tidsstempel
+viste seg å være noen dager gammelt da vi testet, så selv det ekte tilbudet
+ble riktig flagget som `stale_data` av tillitssjekken, en fin bekreftelse på
+at utdatert-flagget faktisk fanger noe reelt og ikke bare mock-dataen.
+
+## Kom i gang
+
+```bash
 npm test
 ```
 

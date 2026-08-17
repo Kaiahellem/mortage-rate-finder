@@ -13,6 +13,6 @@ midlertidig GitHub-feil (503).
 - [x] #3 `DirectBankMockSource`-adapter (mock, tydelig flagget)
 - [x] #7 Utvalgslogikk (LTV-filtrering, laveste effektive rente, begrunnelse)
 - [x] #8 Tillitssjekk mot Norges Banks styringsrente
-- [ ] #4 API-rute `POST /api/best-rate`
+- [x] #4 API-rute `POST /api/best-rate`
 - [ ] #9 (Valgfritt) Minimal UI-side
 - [ ] #5 Dokumentasjon, siste gjennomgang
