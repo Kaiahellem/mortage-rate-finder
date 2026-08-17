@@ -21,23 +21,29 @@ export interface TrustFlag {
   message: string;
 }
 
-export interface TrustCheckResult {
-  policyRate: PolicyRate;
+export interface OfferTrustCheck {
+  offerId: string;
   /** Empty when nothing was flagged. Flags are warnings, not rejections: the offer is still shown. */
   flags: TrustFlag[];
 }
 
+export interface TrustCheckResult {
+  policyRate: PolicyRate;
+  /** One entry per checked offer, so a stale or suspicious offer is caught even when it isn't the winner. */
+  offerChecks: OfferTrustCheck[];
+}
+
 /**
  * Sanity-checks one offer against Norges Bank's policy rate and its own
- * fetchedAt timestamp. Flags are advisory: an offer below the policy rate
- * is still returned to the caller, just with a warning attached, since
- * subsidised loans (e.g. startlån) can legitimately sit below it.
+ * sourceUpdatedAt timestamp. Flags are advisory: an offer below the policy
+ * rate is still returned to the caller, just with a warning attached,
+ * since subsidised loans (e.g. startlån) can legitimately sit below it.
  */
 export function checkOfferTrust(
   offer: RateOffer,
   policyRate: PolicyRate,
   now: Date = new Date(),
-): TrustCheckResult {
+): TrustFlag[] {
   const flags: TrustFlag[] = [];
   const spreadPp = offer.effectiveRatePercent - policyRate.ratePercent;
 
@@ -66,5 +72,25 @@ export function checkOfferTrust(
     }
   }
 
-  return { policyRate, flags };
+  return flags;
+}
+
+/**
+ * Runs checkOfferTrust across every considered offer, not just the winner.
+ * A stale or suspicious offer must not go unflagged just because it lost
+ * on price, e.g. an old mock offer that never becomes the winner should
+ * still surface its stale_data flag.
+ */
+export function checkOffersTrust(
+  offers: RateOffer[],
+  policyRate: PolicyRate,
+  now: Date = new Date(),
+): TrustCheckResult {
+  return {
+    policyRate,
+    offerChecks: offers.map((offer) => ({
+      offerId: offer.id,
+      flags: checkOfferTrust(offer, policyRate, now),
+    })),
+  };
 }

@@ -77,11 +77,17 @@ describe("POST /api/best-rate", () => {
     expect(json.winner.sourceId).toBe("direct-bank-mock");
     expect(json.reasoning).toContain("Fiktiv Bank AS");
     expect(json.trustCheck.policyRate.ratePercent).toBe(4.25);
-    // The mock's fixed fetchedAt (2026-05-01) is always stale relative to
-    // "now", which is exactly what the staleness flag is supposed to catch.
-    expect(json.trustCheck.flags).toEqual([
+    // The mock's fixed sourceUpdatedAt (2026-05-01) is always stale relative
+    // to "now", which is exactly what the staleness flag is supposed to
+    // catch. trustCheck now covers every considered offer, not just the
+    // winner, so we look up the winner's entry by id.
+    const winnerCheck = json.trustCheck.offerChecks.find(
+      (c: { offerId: string }) => c.offerId === json.winner.id,
+    );
+    expect(winnerCheck.flags).toEqual([
       expect.objectContaining({ type: "stale_data" }),
     ]);
+    expect(json.trustCheck.offerChecks).toHaveLength(json.consideredOffers.length);
     expect(json.sourceErrors).toHaveLength(0);
   });
 

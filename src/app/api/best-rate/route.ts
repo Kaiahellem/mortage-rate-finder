@@ -3,7 +3,7 @@ import { fetchPolicyRate } from "@/lib/norges-bank";
 import { DirectBankMockSource } from "@/lib/rate-sources/direct-bank-mock";
 import { RenteportalenSource } from "@/lib/rate-sources/renteportalen";
 import { selectBestOffer } from "@/lib/selection";
-import { checkOfferTrust, type TrustCheckResult } from "@/lib/trust-check";
+import { checkOffersTrust, type TrustCheckResult } from "@/lib/trust-check";
 import type { LoanRequest, RateOffer, RateSource } from "@/lib/types";
 
 const SOURCES: RateSource[] = [
@@ -113,10 +113,10 @@ export async function POST(request: Request) {
   let trustCheck: TrustCheckResult | null = null;
   let trustCheckError: string | undefined;
 
-  if (selection.winner) {
+  if (selection.consideredOffers.length > 0) {
     try {
       const policyRate = await fetchPolicyRate();
-      trustCheck = checkOfferTrust(selection.winner, policyRate);
+      trustCheck = checkOffersTrust(selection.consideredOffers, policyRate);
     } catch (err) {
       trustCheckError =
         err instanceof Error
