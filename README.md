@@ -12,7 +12,11 @@ arbeidsmåten som er brukt.
 
 ## Status
 
-Under arbeid. Se `TODO.md` for fremdrift.
+Kjernefunksjonaliteten er ferdig: to kilder bak et felles grensesnitt,
+utvalg på effektiv rente filtrert etter belåningsgrad, og en tillitssjekk
+mot Norges Banks styringsrente, koblet sammen i `POST /api/best-rate`.
+En valgfri minimal UI-side (lav prioritet) er ikke bygget. Se `TODO.md`
+for fremdrift og `DECISIONS.md` for begrunnede valg.
 
 ## Kilder
 
@@ -45,9 +49,11 @@ Under arbeid. Se `TODO.md` for fremdrift.
 
 ## Tillitssjekk
 
-Vinnende tilbud sjekkes mot Norges Banks styringsrente, hentet live ved
-hver forespørsel (aldri hardkodet, siden neste rentebeslutning er
-2026-09-24):
+Alle vurderte tilbud (ikke bare det vinnende) sjekkes mot Norges Banks
+styringsrente, hentet live ved hver forespørsel (aldri hardkodet, siden
+neste rentebeslutning er 2026-09-24). Hvert tilbud sjekkes uavhengig,
+slik at et tilbud som taper på pris likevel blir flagget hvis det er
+mistenkelig eller utdatert:
 
 - **Under styringsrenten**: flagges for gjennomgang, men avvises eller
   skjules ikke. Subsiderte lån (f.eks. startlån) kan legitimt ligge lavere.
@@ -74,9 +80,10 @@ curl -X POST http://localhost:3000/api/best-rate \
 
 Svaret inneholder `winner` (eller `null` med en forklarende `reasoning` hvis
 ingen kilde dekker den oppgitte belåningsgraden), `consideredOffers` (alle
-tilbud som ble vurdert, billigst først), `trustCheck` (styringsrente +
-eventuelle flagg) og `sourceErrors` (hvis én kilde feilet, fortsetter
-endepunktet med resten i stedet for å feile helt).
+tilbud som ble vurdert, billigst først), `trustCheck` (styringsrenten pluss
+`offerChecks`, en liste med flagg per vurdert tilbud, ikke bare vinneren)
+og `sourceErrors` (hvis én kilde feilet, fortsetter endepunktet med resten
+i stedet for å feile helt).
 
 Testet mot ekte, levende data: Renteportalen sitt eget "oppdatert"-tidsstempel
 viste seg å være noen dager gammelt da vi testet, så selv det ekte tilbudet
@@ -94,4 +101,24 @@ npm test
 Punkter vi bevisst har utsatt eller forenklet, som ville vært naturlig å ta
 tak i med mer tid:
 
-- (fylles ut fortløpende etter hvert som vi tar snarveier)
+- **Ingen caching eller fallback for Renteportalen.** Hver forespørsel gjør
+  et nytt, live kall. Bevisst utsatt for å holde løsningen liten, men et
+  ekte produkt ville trengt caching (Renteportalen selv oppdaterer bare
+  daglig) og en fallback hvis kilden er nede.
+- **Ingen ekte skraping av en enkeltbank.** `DirectBankMockSource` er en
+  tydelig flagget mock. Et naturlig neste steg er å bytte den ut med en
+  ekte integrasjon mot én banks API eller nettside, bak samme
+  `RateSource`-grensesnitt.
+- **Lånebeløp brukes ikke til å justere renten**, bare til å flagge avvik
+  fra kildens referansebeløp (se DECISIONS.md rad 10), siden ingen av
+  kildene våre gir beløpsavhengige rentetrinn.
+- **"Ung/førstehjem" og belåningsgrad over 90 %** er utenfor scope. Se
+  "Antakelser" over.
+- **Ingen retry eller backoff** mot Renteportalen eller Norges Bank, kun ett
+  forsøk per forespørsel. Feiler kilden, rapporteres det i `sourceErrors`
+  eller `trustCheckError` i stedet for å prøve på nytt.
+- **Historikk brukes ikke.** Renteportalen tilbyr også `historikk.json`
+  (62 dagers data), som kunne vist rentetrend over tid, men det er utenfor
+  det oppgaven ber om.
+- **Ingen minimal UI bygget** (issue #9), lav prioritet, `curl`/API-et
+  dekker kravet om at et rent endepunkt holder.
