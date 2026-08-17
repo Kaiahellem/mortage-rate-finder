@@ -1,0 +1,70 @@
+import type { PolicyRate } from "./norges-bank";
+import type { RateOffer } from "./types";
+
+/**
+ * Reasonable markup window over the policy rate, in percentage points.
+ * This is a sanity net for obviously wrong numbers, not a judgement of
+ * how good a rate is: real effective mortgage rates rarely exceed the
+ * policy rate by more than ~8pp, so 5pp gives a generous margin against
+ * false positives on real offers while still catching parsing errors or
+ * other clearly bogus figures.
+ */
+const MAX_REASONABLE_SPREAD_PP = 5;
+
+/** How old fetchedAt may be before a figure is flagged as outdated. */
+const STALE_THRESHOLD_HOURS = 48;
+
+export type TrustFlagType = "below_policy_rate" | "spread_too_high" | "stale_data";
+
+export interface TrustFlag {
+  type: TrustFlagType;
+  message: string;
+}
+
+export interface TrustCheckResult {
+  policyRate: PolicyRate;
+  /** Empty when nothing was flagged. Flags are warnings, not rejections: the offer is still shown. */
+  flags: TrustFlag[];
+}
+
+/**
+ * Sanity-checks one offer against Norges Bank's policy rate and its own
+ * fetchedAt timestamp. Flags are advisory: an offer below the policy rate
+ * is still returned to the caller, just with a warning attached, since
+ * subsidised loans (e.g. startlån) can legitimately sit below it.
+ */
+export function checkOfferTrust(
+  offer: RateOffer,
+  policyRate: PolicyRate,
+  now: Date = new Date(),
+): TrustCheckResult {
+  const flags: TrustFlag[] = [];
+  const spreadPp = offer.effectiveRatePercent - policyRate.ratePercent;
+
+  if (spreadPp < 0) {
+    flags.push({
+      type: "below_policy_rate",
+      message: `Effektiv rente (${offer.effectiveRatePercent} %) er lavere enn styringsrenten (${policyRate.ratePercent} % per ${policyRate.asOfDate}). Uvanlig for et ordinært boliglån, men kan forekomme for subsiderte lån som startlån. Bør dobbeltsjekkes, ikke avvises automatisk.`,
+    });
+  } else if (spreadPp > MAX_REASONABLE_SPREAD_PP) {
+    flags.push({
+      type: "spread_too_high",
+      message: `Effektiv rente (${offer.effectiveRatePercent} %) ligger ${spreadPp.toFixed(
+        2,
+      )} prosentpoeng over styringsrenten (${policyRate.ratePercent} % per ${policyRate.asOfDate}), mer enn det urimelighetstaket på ${MAX_REASONABLE_SPREAD_PP} pp. Kan skyldes en feil i tallet eller kilden.`,
+    });
+  }
+
+  const fetchedAtMs = Date.parse(offer.fetchedAt);
+  if (!Number.isNaN(fetchedAtMs)) {
+    const ageHours = (now.getTime() - fetchedAtMs) / (1000 * 60 * 60);
+    if (ageHours > STALE_THRESHOLD_HOURS) {
+      flags.push({
+        type: "stale_data",
+        message: `Tallet ble hentet ${offer.fetchedAt}, mer enn ${STALE_THRESHOLD_HOURS} timer siden. Kan være utdatert.`,
+      });
+    }
+  }
+
+  return { policyRate, flags };
+}

@@ -43,6 +43,22 @@ Under arbeid. Se `TODO.md` for fremdrift.
 - "Ung/førstehjem"-kategorien fra Renteportalen er utelatt, siden den er
   demografisk avgrenset (alder/boligkjøpstype) og ikke et belåningsgrad-trinn.
 
+## Tillitssjekk
+
+Vinnende tilbud sjekkes mot Norges Banks styringsrente, hentet live ved
+hver forespørsel (aldri hardkodet, siden neste rentebeslutning er
+2026-09-24):
+
+- **Under styringsrenten**: flagges for gjennomgang, men avvises eller
+  skjules ikke. Subsiderte lån (f.eks. startlån) kan legitimt ligge lavere.
+- **Mer enn 5 prosentpoeng over styringsrenten**: flagges som et urimelig
+  høyt påslag for et ordinært boliglån, kan skyldes en feil i tallet.
+- **Eldre enn 48 timer**: flagges som mulig utdatert.
+
+Sjekken er ment som en søppelfanger for åpenbart feil tall, ikke en
+vurdering av hvor god en rente er. Se DECISIONS.md rad 11-13 for
+begrunnelsen bak grensene.
+
 ## Kom i gang
 
 ```bash
