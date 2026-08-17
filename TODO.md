@@ -8,7 +8,7 @@ issue-nummer-rekkefølgen, siden noen issues måtte opprettes på nytt etter en
 midlertidig GitHub-feil (503).
 
 - [x] #1 Repo-oppsett (Next.js + TypeScript, CLAUDE.md, README, DECISIONS.md, TODO.md)
-- [ ] #6 Domenetyper og `RateSource`-grensesnitt
+- [x] #6 Domenetyper og `RateSource`-grensesnitt
 - [x] #2 `RenteportalenSource`-adapter (ekte kilde)
 - [x] #3 `DirectBankMockSource`-adapter (mock, tydelig flagget)
 - [x] #7 Utvalgslogikk (LTV-filtrering, laveste effektive rente, begrunnelse)
