@@ -19,8 +19,9 @@ Under arbeid. Se `TODO.md` for fremdrift.
 - **Tilbudskilde 1 (ekte)**: [Renteportalen.no](https://renteportalen.no/data),
   som publiserer Finansportalens boliglånsdata åpent under CC BY 4.0-lisens.
 - **Tilbudskilde 2 (mock, tydelig flagget)**: en modellert enkeltbanks
-  rentetabell, siden direkte skraping av bankers nettsider er skjørt og
-  vilkårene er uklare.
+  rentetabell ("Fiktiv Bank AS", et oppdiktet navn), siden direkte skraping
+  av bankers nettsider er skjørt og vilkårene er uklare. Dekker LTV-trinnene
+  0-60, 60-75, 75-85 og 85-90 %, med både nominell og effektiv rente.
 - **Tillitsanker (ekte)**: [Norges Banks styringsrente](https://www.norges-bank.no/en/topics/statistics/Key-policy-rate-daily/)
   via det åpne API-et på `data.norges-bank.no`.
 
