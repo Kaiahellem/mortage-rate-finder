@@ -15,4 +15,4 @@ midlertidig GitHub-feil (503).
 - [x] #8 Tillitssjekk mot Norges Banks styringsrente
 - [x] #4 API-rute `POST /api/best-rate`
 - [ ] #9 (Valgfritt) Minimal UI-side
-- [ ] #5 Dokumentasjon, siste gjennomgang
+- [x] #5 Dokumentasjon, siste gjennomgang
