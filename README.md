@@ -102,23 +102,50 @@ Punkter vi bevisst har utsatt eller forenklet, som ville vært naturlig å ta
 tak i med mer tid:
 
 - **Ingen caching eller fallback for Renteportalen.** Hver forespørsel gjør
-  et nytt, live kall. Bevisst utsatt for å holde løsningen liten, men et
-  ekte produkt ville trengt caching (Renteportalen selv oppdaterer bare
-  daglig) og en fallback hvis kilden er nede.
+  et nytt, live kall. Bevisst utsatt for å holde løsningen liten. Gjort
+  ordentlig ville betydd en cache med TTL matchet mot Renteportalens egen
+  oppdateringsfrekvens (de cacher selv i 1 time), og en fallback til sist
+  kjente data hvis et live kall feiler. Det siste hadde vært billig å legge
+  til: cachet data kunne flytt gjennom nøyaktig samme `stale_data`-flagg som
+  allerede finnes, siden den måler kildens egen dato (`sourceUpdatedAt`),
+  ikke når vi hentet (`retrievedAt`).
 - **Ingen ekte skraping av en enkeltbank.** `DirectBankMockSource` er en
-  tydelig flagget mock. Et naturlig neste steg er å bytte den ut med en
-  ekte integrasjon mot én banks API eller nettside, bak samme
-  `RateSource`-grensesnitt.
+  tydelig flagget mock. Gjort ordentlig ville betydd enten en
+  headless-browser-scraper (Playwright/Puppeteer) mot én banks
+  rentetabellside, med selektorer som må overvåkes for å oppdage når siden
+  endres, eller en avtale om API-tilgang (Finansportalen krever en
+  distribusjonsavtale fra Forbrukerrådet). Fordi mock-en ligger bak samme
+  `RateSource`-grensesnitt som den ekte kilden, er selve byttet en lokal
+  endring i én fil, resten av systemet trenger ikke røres.
 - **Lånebeløp brukes ikke til å justere renten**, bare til å flagge avvik
-  fra kildens referansebeløp (se DECISIONS.md rad 10), siden ingen av
-  kildene våre gir beløpsavhengige rentetrinn.
-- **"Ung/førstehjem" og belåningsgrad over 90 %** er utenfor scope. Se
-  "Antakelser" over.
+  fra kildens referansebeløp (se DECISIONS.md rad 10). Ingen av kildene våre
+  gir beløpsavhengige rentetrinn, og å finne opp en skaleringsformel ville
+  vært gjettverk uten belegg i data. Gjort ordentlig ville betydd å finne en
+  kilde som oppgir faste gebyrer i kroner (etableringsgebyr,
+  tinglysingsgebyr), og regne ut reell effektiv rente per oppgitt lånebeløp
+  med annuitetsformelen, den formelle måten effektiv rente faktisk
+  beregnes på.
+- **"Ung/førstehjem" og belåningsgrad over 90 % er utenfor scope.**
+  Ung/førstehjem er en demografisk kategori (alder, første bolig), ikke et
+  belåningsgrad-trinn, og ville krevd en ny akse i domenemodellen utover LTV
+  og lånebeløp. Over 90 % LTV er i stor grad et ikke-problem: nedbetalingslån
+  er uansett begrenset til 90 % av forsvarlig verdigrunnlag i
+  utlånsforskriften (§ 7), så gapet er mer et datagrunnlags-hull enn en
+  reell mangel.
 - **Ingen retry eller backoff** mot Renteportalen eller Norges Bank, kun ett
   forsøk per forespørsel. Feiler kilden, rapporteres det i `sourceErrors`
-  eller `trustCheckError` i stedet for å prøve på nytt.
+  eller `trustCheckError` i stedet for å prøve på nytt (se DECISIONS.md rad
+  14). Gjort ordentlig ville betydd eksponentiell backoff med 1-2 forsøk,
+  men kun for forbigående feil (5xx, nettverksfeil), ikke for klientfeil
+  (4xx, som ikke fikser seg selv), og en total tidsbudsjett-grense så
+  endepunktet ikke henger.
 - **Historikk brukes ikke.** Renteportalen tilbyr også `historikk.json`
-  (62 dagers data), som kunne vist rentetrend over tid, men det er utenfor
-  det oppgaven ber om.
-- **Ingen minimal UI bygget** (issue #9), lav prioritet, `curl`/API-et
-  dekker kravet om at et rent endepunkt holder.
+  (62 dagers data). Kunne vært brukt til en rentegraf, eller til en mer
+  robust avviks-sjekk (flagg et tall som statistisk avviker fra nylig trend,
+  i stedet for en fast prosentpoeng-grense mot styringsrenten), men det er
+  utenfor det oppgaven spør om.
+- **Ingen minimal UI bygget.** Oppgaveteksten stiller ikke krav om UI, kun
+  at vi sender en lenke til det vi har laget, så dette er et rent
+  diskresjonært valg, ikke et udekket krav. Med mer tid ville en ett-sides
+  skjema rundt det eksisterende API-et vært billig å legge til og gjort
+  demo-opplevelsen enklere.
