@@ -69,10 +69,19 @@ describe("selectBestOffer", () => {
     expect(result.reasoning).toContain("Renteportalen.no");
   });
 
-  it("treats an LTV exactly on a tier boundary as belonging to the lower tier", () => {
+  it("treats an LTV exactly on a tier boundary (60.0) as inclusive on the lower tier's upper bound, not the next tier", () => {
+    // Confirms offerCoversLtv uses <= on maxLtvPercent, matching the
+    // "inclusive upper bound" assumption documented on LtvTier and in
+    // RenteportalenSource's assumptions text.
     const result = selectBestOffer(allOffers, { ltvPercent: 60, loanAmount: 2_000_000 });
 
     expect(result.winner?.ltvTier).toEqual({ minLtvPercent: 0, maxLtvPercent: 60 });
+    expect(result.consideredOffers.every((o) => o.ltvTier.maxLtvPercent === 60)).toBe(
+      true,
+    );
+    expect(
+      result.consideredOffers.some((o) => o.ltvTier.minLtvPercent === 60),
+    ).toBe(false);
   });
 
   it("moves to the next tier just above the boundary", () => {
