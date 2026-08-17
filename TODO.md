@@ -11,7 +11,7 @@ midlertidig GitHub-feil (503).
 - [ ] #6 Domenetyper og `RateSource`-grensesnitt
 - [x] #2 `RenteportalenSource`-adapter (ekte kilde)
 - [x] #3 `DirectBankMockSource`-adapter (mock, tydelig flagget)
-- [ ] #7 Utvalgslogikk (LTV-filtrering, laveste effektive rente, begrunnelse)
+- [x] #7 Utvalgslogikk (LTV-filtrering, laveste effektive rente, begrunnelse)
 - [ ] #8 Tillitssjekk mot Norges Banks styringsrente
 - [ ] #4 API-rute `POST /api/best-rate`
 - [ ] #9 (Valgfritt) Minimal UI-side
