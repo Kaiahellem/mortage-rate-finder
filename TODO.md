@@ -9,7 +9,7 @@ midlertidig GitHub-feil (503).
 
 - [x] #1 Repo-oppsett (Next.js + TypeScript, CLAUDE.md, README, DECISIONS.md, TODO.md)
 - [ ] #6 Domenetyper og `RateSource`-grensesnitt
-- [ ] #2 `RenteportalenSource`-adapter (ekte kilde)
+- [x] #2 `RenteportalenSource`-adapter (ekte kilde)
 - [ ] #3 `DirectBankMockSource`-adapter (mock, tydelig flagget)
 - [ ] #7 Utvalgslogikk (LTV-filtrering, laveste effektive rente, begrunnelse)
 - [ ] #8 Tillitssjekk mot Norges Banks styringsrente
