@@ -1,69 +1,73 @@
-# PengeFix take-home-oppgave
+# Best Mortgage Rate Finder
 
-En liten tjeneste som svarer på: "Hva er beste boliglånsrente i Norge nå for
-en gitt belåningsgrad?"
+A small service that answers: "What's the best mortgage rate in Norway right
+now for a given loan-to-value ratio?"
 
-Input: belåningsgrad (LTV) og lånebeløp.
-Output: beste alternativ, med begrunnelse, sammenlignet på effektiv rente.
+Input: loan-to-value ratio (LTV) and loan amount.
+Output: best option, with reasoning, compared on effective interest rate.
 
-Dette er en take-home-oppgave til andregangsintervju hos PengeFix. Se
-`DECISIONS.md` for begrunnede valg underveis, og `CLAUDE.md` for
-arbeidsmåten som er brukt.
+This started as a take-home coding exercise for a job interview. It's now
+kept as a portfolio project. See
+`DECISIONS.md` for the reasoning behind choices made along the way, and
+`CLAUDE.md` for the working method used (including how AI assistance was
+used and reviewed).
 
 ## Status
 
-Kjernefunksjonaliteten er ferdig: to kilder bak et felles grensesnitt,
-utvalg på effektiv rente filtrert etter belåningsgrad, og en tillitssjekk
-mot Norges Banks styringsrente, koblet sammen i `POST /api/best-rate`.
-En valgfri minimal UI-side (lav prioritet) er ikke bygget. Se `TODO.md`
-for fremdrift og `DECISIONS.md` for begrunnede valg.
+Core functionality is done: two sources behind a shared interface,
+selection on effective rate filtered by LTV, and a trust check against
+Norges Bank's key policy rate, wired together in `POST /api/best-rate`. An
+optional minimal UI page (low priority) was not built. See `TODO.md` for
+progress and `DECISIONS.md` for the reasoning behind choices.
 
-## Kilder
+## Sources
 
-- **Tilbudskilde 1 (ekte)**: [Renteportalen.no](https://renteportalen.no/data),
-  som publiserer Finansportalens boliglånsdata åpent under CC BY 4.0-lisens.
-- **Tilbudskilde 2 (mock, tydelig flagget)**: en modellert enkeltbanks
-  rentetabell ("Fiktiv Bank AS", et oppdiktet navn), siden direkte skraping
-  av bankers nettsider er skjørt og vilkårene er uklare. Dekker LTV-trinnene
-  0-60, 60-75, 75-85 og 85-90 %, med både nominell og effektiv rente.
-- **Tillitsanker (ekte)**: [Norges Banks styringsrente](https://www.norges-bank.no/en/topics/statistics/Key-policy-rate-daily/)
-  via det åpne API-et på `data.norges-bank.no`.
+- **Offer source 1 (real)**: [Renteportalen.no](https://renteportalen.no/data),
+  which publishes Finansportalen's mortgage data openly under a CC BY 4.0
+  license.
+- **Offer source 2 (mock, clearly flagged)**: a modeled single-bank rate
+  table ("Fiktiv Bank AS", a made-up name), since directly scraping banks'
+  websites is fragile and the terms are unclear. Covers LTV tiers 0-60,
+  60-75, 75-85 and 85-90 %, with both nominal and effective rates.
+- **Trust anchor (real)**: [Norges Bank's key policy rate](https://www.norges-bank.no/en/topics/statistics/Key-policy-rate-daily/)
+  via the open API at `data.norges-bank.no`.
 
-## Antakelser
+## Assumptions
 
-- Renteportalen sitt rentebarometer oppgir kun billigste effektive rente i
-  markedet per belåningsgrad-trinn (0-60, 60-75, 75-85 %), ikke hvilken bank
-  som tilbyr den eller nominell rente. Vi viser derfor tilbudet som "ukjent
-  bank" for disse radene, og effektiv rente uten nominell motpart.
-- Belåningsgrad-trinnene tolkes som ikke-overlappende intervaller med
-  inkluderende øvre grense, slik at nøyaktig 60,0 % LTV havner i 0-60-trinnet.
-- Belåningsgrad over 85 % gir "ingen tilbud i datagrunnlaget" i denne
-  løsningen. Dette er en begrensning i Renteportalens data, ikke en
-  regelverksgrense. Utlånsforskriften ([Lovdata forskrift 2020-12-09-2648
-  § 7](https://lovdata.no/dokument/SF/forskrift/2020-12-09-2648/kap3))
-  tillater nedbetalingslån med pant i bolig opptil 90 % av et forsvarlig
-  verdigrunnlag, se også [Finanstilsynets](https://www.finanstilsynet.no)
-  veiledning om belåningsgrad.
-- "Ung/førstehjem"-kategorien fra Renteportalen er utelatt, siden den er
-  demografisk avgrenset (alder/boligkjøpstype) og ikke et belåningsgrad-trinn.
+- Renteportalen's rate barometer only reports the cheapest effective rate
+  in the market per LTV tier (0-60, 60-75, 75-85 %), not which bank offers
+  it or the nominal rate. We therefore show the offer as coming from an
+  "unknown bank" for these rows, with an effective rate but no nominal
+  counterpart.
+- LTV tiers are interpreted as non-overlapping intervals with an inclusive
+  upper bound, so exactly 60.0 % LTV lands in the 0-60 tier.
+- LTV above 85 % results in "no offer in the data" in this solution. This
+  is a limitation of Renteportalen's data, not a regulatory limit. The
+  Norwegian lending regulation ([Lovdata forskrift 2020-12-09-2648 § 7](https://lovdata.no/dokument/SF/forskrift/2020-12-09-2648/kap3))
+  allows amortizing mortgage loans secured on a home up to 90 % of a
+  prudently assessed value; see also [Finanstilsynet's](https://www.finanstilsynet.no)
+  guidance on loan-to-value.
+- The "young/first-home" category from Renteportalen is excluded, since
+  it's a demographic segment (age/purchase type), not an LTV tier.
 
-## Tillitssjekk
+## Trust check
 
-Alle vurderte tilbud (ikke bare det vinnende) sjekkes mot Norges Banks
-styringsrente, hentet live ved hver forespørsel (aldri hardkodet, siden
-neste rentebeslutning er 2026-09-24). Hvert tilbud sjekkes uavhengig,
-slik at et tilbud som taper på pris likevel blir flagget hvis det er
-mistenkelig eller utdatert:
+All considered offers (not just the winner) are checked against Norges
+Bank's key policy rate, fetched live on every request (never hardcoded,
+since the next rate decision is on 2026-09-24). Each offer is checked
+independently, so an offer that loses on price is still flagged if it's
+suspicious or stale:
 
-- **Under styringsrenten**: flagges for gjennomgang, men avvises eller
-  skjules ikke. Subsiderte lån (f.eks. startlån) kan legitimt ligge lavere.
-- **Mer enn 5 prosentpoeng over styringsrenten**: flagges som et urimelig
-  høyt påslag for et ordinært boliglån, kan skyldes en feil i tallet.
-- **Eldre enn 48 timer**: flagges som mulig utdatert.
+- **Below the policy rate**: flagged for review, but not rejected or
+  hidden. Subsidized loans (e.g. Norway's "startlån") can legitimately sit
+  lower.
+- **More than 5 percentage points above the policy rate**: flagged as an
+  unreasonably high margin for an ordinary mortgage, possibly a data error.
+- **Older than 48 hours**: flagged as possibly stale.
 
-Sjekken er ment som en søppelfanger for åpenbart feil tall, ikke en
-vurdering av hvor god en rente er. Se DECISIONS.md rad 11-13 for
-begrunnelsen bak grensene.
+The check is meant as a garbage-catcher for obviously wrong numbers, not a
+judgment of how good a rate is. See DECISIONS.md rows 11-13 for the
+reasoning behind the thresholds.
 
 ## API
 
@@ -78,74 +82,76 @@ curl -X POST http://localhost:3000/api/best-rate \
   -d '{"ltvPercent": 70, "loanAmount": 3000000}'
 ```
 
-Svaret inneholder `winner` (eller `null` med en forklarende `reasoning` hvis
-ingen kilde dekker den oppgitte belåningsgraden), `consideredOffers` (alle
-tilbud som ble vurdert, billigst først), `trustCheck` (styringsrenten pluss
-`offerChecks`, en liste med flagg per vurdert tilbud, ikke bare vinneren)
-og `sourceErrors` (hvis én kilde feilet, fortsetter endepunktet med resten
-i stedet for å feile helt).
+The response contains `winner` (or `null` with an explanatory `reasoning`
+if no source covers the given LTV), `consideredOffers` (all offers that
+were evaluated, cheapest first), `trustCheck` (the policy rate plus
+`offerChecks`, a list of flags per evaluated offer, not just the winner),
+and `sourceErrors` (if one source fails, the endpoint continues with the
+rest instead of failing entirely).
 
-Testet mot ekte, levende data: Renteportalen sitt eget "oppdatert"-tidsstempel
-viste seg å være noen dager gammelt da vi testet, så selv det ekte tilbudet
-ble riktig flagget som `stale_data` av tillitssjekken, en fin bekreftelse på
-at utdatert-flagget faktisk fanger noe reelt og ikke bare mock-dataen.
+Tested against real, live data: Renteportalen's own "updated" timestamp
+turned out to be a few days old when we tested, so even the real offer was
+correctly flagged as `stale_data` by the trust check, a nice confirmation
+that the stale-data flag actually catches something real and not just the
+mock data.
 
-## Kom i gang
+## Getting started
 
 ```bash
 npm test
 ```
 
-## Videre arbeid
+## Further work
 
-Punkter vi bevisst har utsatt eller forenklet, som ville vært naturlig å ta
-tak i med mer tid:
+Points we deliberately deferred or simplified, which would be natural to
+address with more time:
 
-- **Ingen caching eller fallback for Renteportalen.** Hver forespørsel gjør
-  et nytt, live kall. Bevisst utsatt for å holde løsningen liten. Gjort
-  ordentlig ville betydd en cache med TTL matchet mot Renteportalens egen
-  oppdateringsfrekvens (de cacher selv i 1 time), og en fallback til sist
-  kjente data hvis et live kall feiler. Det siste hadde vært billig å legge
-  til: cachet data kunne flytt gjennom nøyaktig samme `stale_data`-flagg som
-  allerede finnes, siden den måler kildens egen dato (`sourceUpdatedAt`),
-  ikke når vi hentet (`retrievedAt`).
-- **Ingen ekte skraping av en enkeltbank.** `DirectBankMockSource` er en
-  tydelig flagget mock. Gjort ordentlig ville betydd enten en
-  headless-browser-scraper (Playwright/Puppeteer) mot én banks
-  rentetabellside, med selektorer som må overvåkes for å oppdage når siden
-  endres, eller en avtale om API-tilgang (Finansportalen krever en
-  distribusjonsavtale fra Forbrukerrådet). Fordi mock-en ligger bak samme
-  `RateSource`-grensesnitt som den ekte kilden, er selve byttet en lokal
-  endring i én fil, resten av systemet trenger ikke røres.
-- **Lånebeløp brukes ikke til å justere renten**, bare til å flagge avvik
-  fra kildens referansebeløp (se DECISIONS.md rad 10). Ingen av kildene våre
-  gir beløpsavhengige rentetrinn, og å finne opp en skaleringsformel ville
-  vært gjettverk uten belegg i data. Gjort ordentlig ville betydd å finne en
-  kilde som oppgir faste gebyrer i kroner (etableringsgebyr,
-  tinglysingsgebyr), og regne ut reell effektiv rente per oppgitt lånebeløp
-  med annuitetsformelen, den formelle måten effektiv rente faktisk
-  beregnes på.
-- **"Ung/førstehjem" og belåningsgrad over 90 % er utenfor scope.**
-  Ung/førstehjem er en demografisk kategori (alder, første bolig), ikke et
-  belåningsgrad-trinn, og ville krevd en ny akse i domenemodellen utover LTV
-  og lånebeløp. Over 90 % LTV er i stor grad et ikke-problem: nedbetalingslån
-  er uansett begrenset til 90 % av forsvarlig verdigrunnlag i
-  utlånsforskriften (§ 7), så gapet er mer et datagrunnlags-hull enn en
-  reell mangel.
-- **Ingen retry eller backoff** mot Renteportalen eller Norges Bank, kun ett
-  forsøk per forespørsel. Feiler kilden, rapporteres det i `sourceErrors`
-  eller `trustCheckError` i stedet for å prøve på nytt (se DECISIONS.md rad
-  14). Gjort ordentlig ville betydd eksponentiell backoff med 1-2 forsøk,
-  men kun for forbigående feil (5xx, nettverksfeil), ikke for klientfeil
-  (4xx, som ikke fikser seg selv), og en total tidsbudsjett-grense så
-  endepunktet ikke henger.
-- **Historikk brukes ikke.** Renteportalen tilbyr også `historikk.json`
-  (62 dagers data). Kunne vært brukt til en rentegraf, eller til en mer
-  robust avviks-sjekk (flagg et tall som statistisk avviker fra nylig trend,
-  i stedet for en fast prosentpoeng-grense mot styringsrenten), men det er
-  utenfor det oppgaven spør om.
-- **Ingen minimal UI bygget.** Oppgaveteksten stiller ikke krav om UI, kun
-  at vi sender en lenke til det vi har laget, så dette er et rent
-  diskresjonært valg, ikke et udekket krav. Med mer tid ville en ett-sides
-  skjema rundt det eksisterende API-et vært billig å legge til og gjort
-  demo-opplevelsen enklere.
+- **No caching or fallback for Renteportalen.** Every request makes a new,
+  live call. Deliberately deferred to keep the solution small. Done
+  properly, this would mean a cache with a TTL matched to Renteportalen's
+  own update frequency (they cache for 1 hour themselves), and a fallback
+  to the last known data if a live call fails. The latter would be cheap
+  to add: cached data could flow through exactly the same `stale_data`
+  flag that already exists, since it measures the source's own date
+  (`sourceUpdatedAt`), not when we fetched it (`retrievedAt`).
+- **No real scraping of a single bank.** `DirectBankMockSource` is a
+  clearly flagged mock. Done properly, this would mean either a
+  headless-browser scraper (Playwright/Puppeteer) against one bank's rate
+  table page, with selectors that need monitoring to catch when the page
+  changes, or an agreement for API access (Finansportalen requires a
+  distribution agreement from the Norwegian Consumer Council). Because the
+  mock sits behind the same `RateSource` interface as the real source, the
+  actual swap is a local change in one file; the rest of the system
+  doesn't need to be touched.
+- **Loan amount isn't used to adjust the rate**, only to flag deviation
+  from the source's reference amount (see DECISIONS.md row 10). Neither of
+  our sources provides amount-dependent rate tiers, and inventing a
+  scaling formula would be guesswork with no basis in data. Done properly,
+  this would mean finding a source that states fixed fees in kroner
+  (origination fee, registration fee), and computing the real effective
+  rate per stated loan amount with the annuity formula, the formal way
+  effective rate is actually calculated.
+- **"Young/first-home" and LTV above 90 % are out of scope.**
+  Young/first-home is a demographic category (age, first home), not an LTV
+  tier, and would require a new axis in the domain model beyond LTV and
+  loan amount. LTV above 90 % is largely a non-issue: amortizing loans are
+  capped at 90 % of a prudently assessed value under the lending
+  regulation (§ 7) regardless, so the gap is more a data-coverage hole
+  than a real shortcoming.
+- **No retry or backoff** against Renteportalen or Norges Bank, only one
+  attempt per request. If a source fails, it's reported in `sourceErrors`
+  or `trustCheckError` instead of retrying (see DECISIONS.md row 14). Done
+  properly, this would mean exponential backoff with 1-2 attempts, but
+  only for transient failures (5xx, network errors), not client errors
+  (4xx, which don't fix themselves), plus a total time budget so the
+  endpoint doesn't hang.
+- **History isn't used.** Renteportalen also offers `historikk.json` (62
+  days of data). Could be used for a rate chart, or for a more robust
+  deviation check (flag a number that's a statistical outlier from the
+  recent trend, instead of a fixed percentage-point threshold against the
+  policy rate), but that's beyond what this project set out to do.
+- **No minimal UI built.** The original brief didn't require a UI, only
+  that a link to the finished work be shared, so this is a purely
+  discretionary choice, not an unmet requirement. With more time, a
+  one-page form around the existing API would be cheap to add and would
+  make the demo experience simpler.

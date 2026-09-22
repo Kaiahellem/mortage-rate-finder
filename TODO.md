@@ -1,18 +1,18 @@
 # TODO
 
-Arbeidsliste for take-home-oppgaven. Se GitHub-issues for den offisielle
-rekkefølgen; denne filen er et raskt arbeidsnotat underveis.
+Work list for this project. See GitHub issues for the official order; this
+file is a quick working note along the way.
 
-Rekkefølgen under er arbeidsrekkefølgen (avhengigheter), ikke
-issue-nummer-rekkefølgen, siden noen issues måtte opprettes på nytt etter en
-midlertidig GitHub-feil (503).
+The order below is the work order (dependencies), not the issue-number
+order, since some issues had to be recreated after a temporary GitHub
+outage (503).
 
-- [x] #1 Repo-oppsett (Next.js + TypeScript, CLAUDE.md, README, DECISIONS.md, TODO.md)
-- [x] #6 Domenetyper og `RateSource`-grensesnitt
-- [x] #2 `RenteportalenSource`-adapter (ekte kilde)
-- [x] #3 `DirectBankMockSource`-adapter (mock, tydelig flagget)
-- [x] #7 Utvalgslogikk (LTV-filtrering, laveste effektive rente, begrunnelse)
-- [x] #8 Tillitssjekk mot Norges Banks styringsrente
-- [x] #4 API-rute `POST /api/best-rate`
-- [ ] #9 (Valgfritt) Minimal UI-side
-- [x] #5 Dokumentasjon, siste gjennomgang
+- [x] #1 Repo setup (Next.js + TypeScript, CLAUDE.md, README, DECISIONS.md, TODO.md)
+- [x] #6 Domain types and `RateSource` interface
+- [x] #2 `RenteportalenSource` adapter (real source)
+- [x] #3 `DirectBankMockSource` adapter (mock, clearly flagged)
+- [x] #7 Selection logic (LTV filtering, lowest effective rate, reasoning)
+- [x] #8 Trust check against Norges Bank's key policy rate
+- [x] #4 API route `POST /api/best-rate`
+- [ ] #9 (Optional) Minimal UI page
+- [x] #5 Documentation, final pass

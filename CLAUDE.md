@@ -1,28 +1,31 @@
 @AGENTS.md
 
-# Prosjektpreferanser
+# Project preferences
 
-Dette er en take-home-oppgave til andregangsintervju hos PengeFix. Se
-`README.md` for oppgaven og `DECISIONS.md` for begrunnede valg.
+This started as a take-home coding exercise for a job interview. It's now
+kept as a portfolio project. See `README.md` for the project and
+`DECISIONS.md` for the reasoning behind choices.
 
-## Språk
+## Language
 
-- Kode, filnavn, kommentarer og commit-meldinger: engelsk.
-- Dokumentasjon (`README.md`, `DECISIONS.md`, `TODO.md`): naturlig norsk,
-  uten tankestrek (bruk vanlig bindestrek eller komma i stedet).
+- Code, filenames, comments and commit messages: English.
+- Documentation (`README.md`, `DECISIONS.md`, `TODO.md`): English, no em
+  dashes (use a regular hyphen or comma instead).
 
-## Arbeidsmåte
+## Working method
 
-- Jobb én GitHub-issue om gangen. Små commits med tydelige meldinger som
-  refererer issue-nummer, f.eks. `Add RateSource interface (#2)`.
-- Etter hver issue: stopp, oppsummer kort hva som ble gjort og hvorfor, og
-  vent på klarsignal før neste issue. Ikke dump hele løsningen på én gang.
-- Før et ikke-trivielt valg (kilder, arkitektur, biblioteker): forklar
-  alternativene og trade-offs, la brukeren bestemme.
-- Oppdater `DECISIONS.md` ved viktige valg, med kolonne "AI eller meg" som
-  noterer hvem som styrte valget.
-- Mock skal alltid være tydelig flagget i kode og output (aldri fremstilles
-  som ekte data). Antakelser skal stå eksplisitt, ikke skjules.
-- Hold løsningen liten. Ikke gullforgyll. "Med mer tid ville jeg..."-punkter
-  samles fortløpende i README under "Videre arbeid", eventuelt i `TODO.md`
-  som arbeidsliste underveis.
+- Work one GitHub issue at a time. Small commits with clear messages that
+  reference the issue number, e.g. `Add RateSource interface (#2)`.
+- After each issue: stop, briefly summarize what was done and why, and
+  wait for a go-ahead before the next issue. Don't dump the whole solution
+  at once.
+- Before a non-trivial choice (sources, architecture, libraries): explain
+  the alternatives and trade-offs, let the user decide.
+- Update `DECISIONS.md` for important choices, with an "AI or me" column
+  noting who drove the choice.
+- Mock data must always be clearly flagged in code and output (never
+  presented as real data). Assumptions should be stated explicitly, not
+  hidden.
+- Keep the solution small. Don't gold-plate. "With more time I would..."
+  points are collected continuously in the README under "Further work", or
+  in `TODO.md` as a working list along the way.
