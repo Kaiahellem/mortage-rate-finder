@@ -1,4 +1,4 @@
-# Best Mortgage Rate Finder
+# Mortgage Rate Finder
 
 A small service that answers: "What's the best mortgage rate in Norway right
 now for a given loan-to-value ratio?"
