@@ -14,5 +14,5 @@ outage (503).
 - [x] #7 Selection logic (LTV filtering, lowest effective rate, reasoning)
 - [x] #8 Trust check against Norges Bank's key policy rate
 - [x] #4 API route `POST /api/best-rate`
-- [ ] #9 (Optional) Minimal UI page
+- [x] #9 (Optional) Minimal UI page
 - [x] #5 Documentation, final pass

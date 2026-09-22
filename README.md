@@ -16,9 +16,25 @@ used and reviewed).
 
 Core functionality is done: two sources behind a shared interface,
 selection on effective rate filtered by LTV, and a trust check against
-Norges Bank's key policy rate, wired together in `POST /api/best-rate`. An
-optional minimal UI page (low priority) was not built. See `TODO.md` for
-progress and `DECISIONS.md` for the reasoning behind choices.
+Norges Bank's key policy rate, wired together in `POST /api/best-rate`
+and a minimal UI on top of it. See `TODO.md` for progress and
+`DECISIONS.md` for the reasoning behind choices.
+
+## Getting started
+
+```bash
+npm install
+npm run dev
+```
+
+Then either open [http://localhost:3000](http://localhost:3000) in a
+browser to use the UI, or call the API directly:
+
+```bash
+curl -X POST http://localhost:3000/api/best-rate \
+  -H "Content-Type: application/json" \
+  -d '{"ltvPercent": 70, "loanAmount": 3000000}'
+```
 
 ## Sources
 
@@ -71,17 +87,7 @@ reasoning behind the thresholds.
 
 ## API
 
-```bash
-npm install
-npm run dev
-```
-
-```bash
-curl -X POST http://localhost:3000/api/best-rate \
-  -H "Content-Type: application/json" \
-  -d '{"ltvPercent": 70, "loanAmount": 3000000}'
-```
-
+`POST /api/best-rate` (see Getting started above for a sample request).
 The response contains `winner` (or `null` with an explanatory `reasoning`
 if no source covers the given LTV), `consideredOffers` (all offers that
 were evaluated, cheapest first), `trustCheck` (the policy rate plus
@@ -95,7 +101,15 @@ correctly flagged as `stale_data` by the trust check, a nice confirmation
 that the stale-data flag actually catches something real and not just the
 mock data.
 
-## Getting started
+## UI
+
+A minimal page at `/` wraps the API: a form for LTV and loan amount, the
+winning offer, all considered offers (cheapest first), trust-check flags
+per offer, and a visible "MOCK DATA" badge on any offer that isn't real.
+No styling framework, just plain CSS Modules, consistent with dropping
+Tailwind for the API-only version (see DECISIONS.md row 4).
+
+## Running tests
 
 ```bash
 npm test
@@ -150,8 +164,3 @@ address with more time:
   deviation check (flag a number that's a statistical outlier from the
   recent trend, instead of a fixed percentage-point threshold against the
   policy rate), but that's beyond what this project set out to do.
-- **No minimal UI built.** The original brief didn't require a UI, only
-  that a link to the finished work be shared, so this is a purely
-  discretionary choice, not an unmet requirement. With more time, a
-  one-page form around the existing API would be cheap to add and would
-  make the demo experience simpler.
